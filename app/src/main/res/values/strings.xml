@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Twig Todo</string>
+    <string name="titlebar_text">Twig Todo</string>
+    <string name="loading_text">Loading</string>
+    <string name="empty_text">No items</string>
+    <string name="cd_add_todo">Add todo item</string>
+    <string name="cd_delete_todo">delete todo item</string>
+    <string name="dialog_title_add">Add Todo Item</string>
+    <string name="dialog_desc_add">Would you like to add a new todo item?</string>
+    <string name="dialog_confirm">Confirm</string>
+    <string name="dialog_cancel">Cancel</string>
+</resources>
