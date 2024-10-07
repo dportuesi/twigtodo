@@ -1,6 +1,5 @@
 package com.branchapp.twigtodo
 
-import androidx.lifecycle.viewModelScope
 import com.branchapp.twigtodo.data.model.TodoItem
 import com.branchapp.twigtodo.data.repository.TodoRepository
 import com.branchapp.twigtodo.ui.screens.home.HomeScreenState
@@ -12,21 +11,11 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import io.mockk.verifySequence
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,17 +40,8 @@ class HomeViewModelTest {
     @Test
     fun `viewModel created loads correct todo items`() = runTest {
         // arrange
-        Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
-        val homeUiStateWatcher = mutableListOf<HomeScreenState>()
-        val uiWatcherJob  = homeViewModel.viewModelScope.launch {
-            homeViewModel.homeUiState.collect { state ->
-                homeUiStateWatcher.add(state)
-            }
-        }
-
-        coEvery { todoRepository.getTodoItemsFlow() }.coAnswers {
-            flow {
-                emit(
+        every { todoRepository.getTodoItemsFlow() } returns
+                flowOf(
                     listOf(
                         TodoItem(
                             id = 1,
@@ -73,17 +53,15 @@ class HomeViewModelTest {
                         )
                     )
                 )
-            }
-        }
-
-        advanceUntilIdle()
 
         // act
         initViewModel()
 
+        // assert
+        assertEquals(HomeScreenState.Loading, homeViewModel.homeUiState.value)
+
         advanceUntilIdle()
 
-        // assert
         val expected = HomeScreenState.TodoListLoaded(
             todoItems = listOf(
                 TodoItem(
@@ -96,13 +74,8 @@ class HomeViewModelTest {
                 )
             )
         )
-
+        assertEquals(expected, homeViewModel.homeUiState.value)
         verify { todoRepository.getTodoItemsFlow() }
-        advanceUntilIdle()
-        assertEquals(HomeScreenState.Loading, homeUiStateWatcher.first())
-        assertEquals(expected, homeUiStateWatcher.last())
-
-        uiWatcherJob.cancel()
     }
 
     @Test
@@ -135,5 +108,107 @@ class HomeViewModelTest {
 
         // assert
         coVerify(exactly = 1) { todoRepository.deleteTodoItem(testCard) }
+    }
+
+    @Test
+    fun `every addTodoItem calls insert on repository`() = runTest {
+        // arrange
+        coEvery { todoRepository.insertTodoItem(any()) } just runs
+        every { todoRepository.getTodoItemsFlow() } returns
+                flowOf(
+                    listOf(
+                        TodoItem(
+                            id = 1,
+                            title = "test"
+                        ),
+                        TodoItem(
+                            id = 2,
+                            title = "second"
+                        )
+                    )
+                )
+
+        initViewModel()
+
+
+        // act
+        homeViewModel.addTodoItem("test card")
+        advanceUntilIdle()
+
+        // assert
+        val expected = TodoItem(
+            id = null,
+            title = "test card"
+        )
+        coVerify(exactly = 1) { todoRepository.insertTodoItem(expected) }
+    }
+
+    @Test
+    fun `every addTodoItem calls shows error`() = runTest {
+        // arrange
+        coEvery { todoRepository.insertTodoItem(any()) } throws Exception("test exception")
+        every { todoRepository.getTodoItemsFlow() } returns
+                flowOf(
+                    listOf(
+                        TodoItem(
+                            id = 1,
+                            title = "test"
+                        ),
+                        TodoItem(
+                            id = 2,
+                            title = "second"
+                        )
+                    )
+                )
+
+        initViewModel()
+
+
+        // act
+        advanceUntilIdle()
+        homeViewModel.addTodoItem("test card")
+        advanceUntilIdle()
+
+        // assert
+        val expected = TodoItem(
+            id = null,
+            title = "test card"
+        )
+        coVerify(exactly = 1) { todoRepository.insertTodoItem(expected) }
+        assertEquals(HomeScreenState.Error("Error creating item."), homeViewModel.homeUiState.value)
+    }
+
+    @Test
+    fun `every onDeleteClicked calls shows error`() = runTest {
+        // arrange
+        coEvery { todoRepository.deleteTodoItem(any()) } throws Exception("test exception")
+        every { todoRepository.getTodoItemsFlow() } returns
+                flowOf(
+                    listOf(
+                        TodoItem(
+                            id = 1,
+                            title = "test"
+                        ),
+                        TodoItem(
+                            id = 2,
+                            title = "second"
+                        )
+                    )
+                )
+
+        initViewModel()
+        val testCard = TodoItem(
+            id = 1,
+            title = "test card"
+        )
+
+        // act
+        advanceUntilIdle()
+        homeViewModel.onDeleteClicked(testCard)
+        advanceUntilIdle()
+
+        // assert
+        coVerify(exactly = 1) { todoRepository.deleteTodoItem(testCard) }
+        assertEquals(HomeScreenState.Error("Error deleting item."), homeViewModel.homeUiState.value)
     }
 }

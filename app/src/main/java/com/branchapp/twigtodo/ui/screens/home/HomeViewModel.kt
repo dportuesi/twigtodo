@@ -39,17 +39,25 @@ class HomeViewModel(
 
     fun onDeleteClicked(card: TodoItem) {
         viewModelScope.launch {
-            todoItemRepository.deleteTodoItem(card)
+            runCatching {
+                todoItemRepository.deleteTodoItem(card)
+            }.onFailure {
+                showError("Error deleting item.")
+            }
         }
     }
 
     fun addTodoItem(title: String) {
         viewModelScope.launch {
-            todoItemRepository.insertTodoItem(
-                TodoItem(
-                    title = title
+            runCatching {
+                todoItemRepository.insertTodoItem(
+                    TodoItem(
+                        title = title
+                    )
                 )
-            )
+            }.onFailure {
+                showError("Error creating item.")
+            }
         }
     }
 
@@ -60,6 +68,12 @@ class HomeViewModel(
             )
         }
     }
+
+    private fun showError(message: String) {
+        _homeUiState.update {
+            HomeScreenState.Error(message)
+        }
+    }
 }
 
 sealed class HomeScreenState() {
@@ -67,6 +81,7 @@ sealed class HomeScreenState() {
     data class TodoListLoaded(
         val todoItems: List<TodoItem>
     ): HomeScreenState()
-
-    // Could add error state here as well!
+    data class Error(
+        val message: String,
+    ): HomeScreenState()
 }

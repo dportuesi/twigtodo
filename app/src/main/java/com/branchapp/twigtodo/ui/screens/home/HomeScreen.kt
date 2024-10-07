@@ -3,11 +3,15 @@ package com.branchapp.twigtodo.ui.screens.home
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -16,11 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.branchapp.twigtodo.FabState
 import com.branchapp.twigtodo.GlobalStateManager
+import com.branchapp.twigtodo.LocalSnackbarHostState
 import com.branchapp.twigtodo.R
 import com.branchapp.twigtodo.data.model.TodoItem
 import com.branchapp.twigtodo.ui.components.AddTodoDialog
 import com.branchapp.twigtodo.ui.components.TodoCard
 import com.branchapp.twigtodo.ui.theme.TwigTodoTheme
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -61,6 +67,20 @@ fun HomeScreenLayout(
     uiState: HomeScreenState,
     cardClick: (TodoItem) -> Unit,
 ) {
+    val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // used launched effect to show error
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is HomeScreenState.Error -> {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(uiState.message)
+                }
+            }
+            else -> {}
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -69,7 +89,6 @@ fun HomeScreenLayout(
         when (uiState) {
             is HomeScreenState.Loading ->
                 Text(text = stringResource(R.string.loading_text))
-
             is HomeScreenState.TodoListLoaded -> {
                 if (uiState.todoItems.isEmpty()) {
                     Text(
@@ -77,13 +96,24 @@ fun HomeScreenLayout(
                         text = stringResource(R.string.empty_text)
                     )
                 } else {
-                    uiState.todoItems.map { card ->
-                        TodoCard(
-                            title = card.title,
-                            onClick = { cardClick(card) }
-                        )
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        uiState.todoItems.map { card ->
+                            TodoCard(
+                                title = card.title,
+                                onClick = { cardClick(card) }
+                            )
+                        }
                     }
                 }
+            }
+            is HomeScreenState.Error -> {
+                Text(
+                    modifier = Modifier.padding(8.dp),
+                    text = stringResource(R.string.error_text)
+                )
             }
         }
     }

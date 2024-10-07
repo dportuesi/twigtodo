@@ -3,6 +3,7 @@
     <string name="titlebar_text">Twig Todo</string>
     <string name="loading_text">Loading</string>
     <string name="empty_text">No items</string>
+    <string name="error_text">Error loading items</string>
     <string name="cd_add_todo">Add todo item</string>
     <string name="cd_delete_todo">delete todo item</string>
     <string name="dialog_title_add">Add Todo Item</string>
