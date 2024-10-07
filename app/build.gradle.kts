@@ -45,6 +45,7 @@ dependencies {
     // core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.android)
@@ -66,6 +67,9 @@ dependencies {
 
     // test
     testImplementation(libs.junit)
+    testImplementation(libs.mockk.mockk.android)
+    testImplementation(libs.jetbrains.kotlinx.coroutines.test)
+    testImplementation(libs.mockk.agent)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

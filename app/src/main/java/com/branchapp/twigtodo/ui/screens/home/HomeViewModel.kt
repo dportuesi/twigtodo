@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.branchapp.twigtodo.data.model.TodoItem
 import com.branchapp.twigtodo.data.repository.TodoRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +12,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeViewModel(
-    val todoItemRepository: TodoRepository
+    val todoItemRepository: TodoRepository,
+    val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ): ViewModel() {
     // start our screen off loading
     private val _homeUiState: MutableStateFlow<HomeScreenState> = MutableStateFlow(
@@ -23,7 +25,7 @@ class HomeViewModel(
         // Listen for DB changes. This means our DB is the source
         // of truth, and drives our UI state
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(dispatcher) {
                 // downside is this is a heavy IO thread operation. Could swap to manual
                 // CRUD calls to avoid constant listening
                 todoItemRepository.getTodoItemsFlow().collect { items ->
