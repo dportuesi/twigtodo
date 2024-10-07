@@ -43,7 +43,7 @@ fun AddTodoDialog(
                 TextField(
                     value = text,
                     onValueChange = { text = it },
-                    label = { Text("Todo Title") }
+                    label = { Text(stringResource(R.string.dialog_input_placeholder)) }
                 )
             }
         },

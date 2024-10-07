@@ -9,4 +9,5 @@
     <string name="dialog_desc_add">Would you like to add a new todo item?</string>
     <string name="dialog_confirm">Confirm</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_input_placeholder">Todo Title</string>
 </resources>
