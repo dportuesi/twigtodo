@@ -1,11 +1,10 @@
 # Twig To-Do
 A simple To-do app in android built with MVVM best practices, Room, and Compose.
 
-[!(screen webm)](Screen_recording_1.webm.mp4)
+<iframe src="https://giphy.com/embed/49dqspjjuocjkvOIOp" width="214" height="480" style="" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/49dqspjjuocjkvOIOp">via GIPHY</a></p>
 
 <img src="Screenshot_1.png" width=50% height=50%>
-
-![screenshot two](Screenshot_2.png)
+<img src="Screenshot_2.png" width=50% height=50%>
 
 ## Architecture
 
