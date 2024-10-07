@@ -2,8 +2,13 @@
 A simple To-do app in android built with MVVM best practices, Room, and Compose.
 
 ![record](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExanZtYXB4YjBjbjd1bm9qbnFxZmU0ejRlY2pnMmR0czJ6dHVnZ2ticSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/49dqspjjuocjkvOIOp/giphy.gif)
-<img src="Screenshot_1.png" width=50% height=50%>
-<img src="Screenshot_2.png" width=50% height=50%>
+
+
+## Screenshots
+<p float="left">
+  <img src="Screenshot_1.png" width=33% height=50%>
+  <img src="Screenshot_2.png" width=33% height=50%>
+</p>
 
 ## Architecture
 
